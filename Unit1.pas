@@ -1,0 +1,126 @@
+unit Unit1;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.WinXPickers, Vcl.ExtCtrls,
+  Vcl.StdCtrls, Vcl.Imaging.pngimage,
+  MMSystem, Vcl.MPlayer, Vcl.Imaging.jpeg;
+
+type
+  TForm1 = class(TForm)
+    Timer1: TTimer;
+    Label1: TLabel;
+    Button1: TButton;
+    Image1: TImage;
+    Label2: TLabel;
+    procedure Timer1Timer(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Publics declarations }
+  end;
+
+var
+  Form1: TForm1;
+  _segundos: Integer = 0;
+  _minutos : Integer = 30;
+  _horas   : Integer = 0;
+  _milisegundos : Integer = 0;
+  _activo : boolean = false;
+  _fase : boolean = false;
+
+implementation
+
+{$R *.dfm}
+
+function TimeFormater (  ) : String;
+begin
+  if _activo then
+  begin
+    _segundos := _segundos - 1;
+    if _segundos < 0 then
+    begin
+      _minutos := _minutos - 1;
+      _segundos := 59;
+
+      if not _fase then
+      begin
+        if _minutos < 0 then
+        begin
+          _segundos:= 59;
+          _minutos := 9;
+          _fase    := not _fase;
+          sndPlaySound('sounds\fin-fase.wav',SND_NODEFAULT or SND_ASYNC);
+        end;
+      end;
+
+      if _fase then
+      begin
+        if _minutos < 0 then
+        begin
+          _segundos:= 59;
+          _minutos := 29;
+          _fase    := not _fase;
+          sndPlaySound('sounds\fin-fase.wav',SND_NODEFAULT or SND_ASYNC);
+        end;
+      end;
+
+    end;
+  end;
+end;
+
+function actionTimer( ) : boolean;
+begin
+  sndPlaySound('sounds\pulsar-boton.wav',SND_NODEFAULT or SND_ASYNC);
+  _activo := not _activo;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  actionTimer();
+  if _activo then
+  begin
+    Button1.Caption := 'DETENER';
+    Timer1.Interval := 1000;
+    Image1.Picture.LoadFromFile('img\primera-fase.JPG');
+  end;
+  if not _activo then
+  begin
+    Button1.Caption := 'INICIAR';
+    Timer1.Interval := 0;
+    Image1.Picture.LoadFromFile('img\segunda-fase.JPG');
+    Label2.Caption := 'Bueno...';
+  end;
+
+end;
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  Label1.Caption := Format('%.2d:%.2d:%.2d', [_horas, _minutos, _segundos]);
+  TimeFormater();
+  if _activo then
+  begin
+    if not _fase then
+    begin
+      Label2.Caption := 'Concentración.';
+      Image1.Picture.LoadFromFile('img\primera-fase.JPG');
+    end
+  else
+    begin
+      Label2.Caption := 'Descansando.';
+      Image1.Picture.LoadFromFile('img\segunda-fase.JPG');
+    end;
+  end;
+
+end;
+
+begin
+//  AllocConsole();
+//  Writeln(GetCurrentDir);
+//  Para comparar strings
+//    if pos(_fase, 'Chambeando') > 0 then
+
+end.

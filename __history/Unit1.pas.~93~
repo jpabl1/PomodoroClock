@@ -1,0 +1,135 @@
+unit Unit1;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.WinXPickers, Vcl.ExtCtrls,
+  Vcl.StdCtrls, Vcl.Imaging.pngimage,
+  MMSystem, Vcl.MPlayer, Vcl.Imaging.jpeg;
+
+type
+  TForm1 = class(TForm)
+    Timer1: TTimer;
+    Label1: TLabel;
+    Button1: TButton;
+    Image1: TImage;
+    Label2: TLabel;
+    procedure Timer1Timer(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Publics declarations }
+  end;
+
+var
+  Form1: TForm1;
+  _segundos: Integer = 0;
+  _minutos : Integer = 0;
+  _horas   : Integer = 0;
+  _milisegundos : Integer = 0;
+  _activo : boolean = false;
+  _fase : boolean = false;
+
+implementation
+
+{$R *.dfm}
+
+function TimeFormater (  ) : String;
+begin
+
+  _milisegundos := _milisegundos + 1;
+  if _milisegundos >= 100 then
+  begin
+    _segundos := _segundos + 1;
+    _milisegundos := 0;
+//  Para comparar strings
+//    if pos(_fase, 'Chambeando') > 0 then
+    if not _fase then
+    begin
+      if _segundos >= 30 then
+      begin
+        _segundos:= 0;
+        _minutos := 0;
+        _horas   := 0;
+        _fase    := not _fase;
+        sndPlaySound('sounds\fart-end.wav',SND_NODEFAULT or SND_ASYNC);
+      end;
+    end;
+
+    if _fase then
+    begin
+      if _segundos >= 10 then
+      begin
+        _segundos:= 0;
+        _minutos := 0;
+        _horas   := 0;
+        _fase    := not _fase;
+        sndPlaySound('sounds\fart-end.wav',SND_NODEFAULT or SND_ASYNC);
+      end;
+    end;
+
+    if _segundos >= 60 then
+    begin
+      _minutos := _minutos + 1;
+      _segundos := 0;
+       if _minutos >= 60 then
+       begin
+        _horas := _horas + 1;
+        _minutos := 0;
+       end;
+    end;
+  end;
+
+end;
+
+function actionTimer( ) : boolean;
+begin
+  sndPlaySound('sounds\taka.wav',SND_NODEFAULT or SND_ASYNC);
+  _activo := not _activo;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  actionTimer();
+  if _activo then
+  begin
+    Button1.Caption := 'PERATE';
+    Timer1.Interval := 10;
+    Image1.Picture.LoadFromFile('img\LIVEREACTIONAPPLE.png');
+  end;
+  if not _activo then
+  begin
+    Button1.Caption := 'YA DALE';
+    Timer1.Interval := 0;
+    Image1.Picture.LoadFromFile('img\ZZZ.jpeg');
+    Label2.Caption := 'Bueno...';
+  end;
+
+end;
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  Label1.Caption := Format('%.2d:%.2d:%.2d.%.2d', [_horas, _minutos, _segundos, _milisegundos]);
+  TimeFormater();
+  if _milisegundos > 98 then
+  begin
+    if not _fase then
+    begin
+      Label2.Caption := 'Chambiando...';
+      Image1.Picture.LoadFromFile('img\LIVEREACTIONAPPLE.png');
+    end
+    else
+    begin
+      Label2.Caption := 'Descansando. ZzZzZ';
+      Image1.Picture.LoadFromFile('img\ZZZ.jpeg');
+    end;
+  end;
+end;
+
+begin
+//  AllocConsole();
+//  Writeln(GetCurrentDir);
+
+end.
